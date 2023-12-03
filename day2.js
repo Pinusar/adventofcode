@@ -1,39 +1,37 @@
-const input = getInput();
+const input = getInput()
 
 const lines = input.split('\n')
 
 let result = 0;
-const allowedMax = {
-    red: 12,
-    green: 13,
-    blue: 14
-}
 
 for (const line of lines) {
     console.log(line)
+    const minCubes = {
+        red: 0,
+        green: 0,
+        blue: 0
+    }
     const firstColon = line.indexOf(':')
     const title = line.substring(0, firstColon)
-    const gameId = title.split(' ')[1]
 
     const gameResults = line.substring(firstColon + 2)
 
     const gameSets = gameResults.split(';')
-    let possible = true;
     for (const gameSet of gameSets) {
         let games = gameSet.split(', ')
         for (const game of games) {
             let parts = game.trim().split(' ')
             let color = parts[1]
-            let number = parts[0]
-            if (number > allowedMax[color]) {
-                possible = false;
+            let number = parseInt(parts[0])
+            if (number > minCubes[color]) {
+                minCubes[color] = number
             }
         }
     }
-    if (possible) {
-        result += parseInt(gameId)
-    }
-    console.log(possible)
+    console.log(JSON.stringify(minCubes))
+    let power = minCubes.red * minCubes.green * minCubes.blue;
+    console.log(power)
+    result += power
 }
 
 console.log(result)

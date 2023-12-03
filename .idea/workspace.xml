@@ -4,17 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="642a1c13-1555-42de-8b4a-511a6bfbf041" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AOC.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day1.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day2.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/input.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/input.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    <list default="true" id="642a1c13-1555-42de-8b4a-511a6bfbf041" name="Changes" comment="day 2 part 1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/day2.js" beforeDir="false" afterPath="$PROJECT_DIR$/day2.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,12 +75,25 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1701426139655</updated>
-      <workItem from="1701426140801" duration="6364000" />
+      <workItem from="1701426140801" duration="6962000" />
     </task>
+    <task id="LOCAL-00001" summary="day 2 part 1">
+      <option name="closed" value="true" />
+      <created>1701606143662</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1701606143663</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="day 2 part 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="day 2 part 1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
