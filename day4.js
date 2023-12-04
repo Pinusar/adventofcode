@@ -1,53 +1,95 @@
 const input = getRealInput();
 
-const cache = {}
-const cards = input.split('\n').slice(0, 80)
+let timeForGettingNumber = 0;
+let timeForGettingPoints = 0;
+let timeForAddingCards = 0;
+let timeForShifting = 0;
+
+const pointsCache = {}
+const cardsMappingCache = {}
+const cards = input.split('\n')
+    .map(card => {
+        return {
+            number: getCardNumber(card),
+            content: card
+        }
+    })
 const cardsCopy = JSON.parse(JSON.stringify(cards))
-const processedCards = []
+let processedCards = 0
+
+let startTime = performance.now()
 
 while (cards.length > 0) {
-    const card = cards.shift()
-    const cardNumber = getCardNumber(card)
-    //console.log(cardNumber)
-    const points = getPoints(card)
+    let shiftStart = performance.now()
+    const card = cards.pop()
+    let shiftEnd = performance.now()
+    timeForShifting += (shiftEnd - shiftStart)
+
+
+
+    const cardNumber = card.number
+    processedCards++
+    if (cardsMappingCache[cardNumber] !== undefined) {
+        cards.push(...cardsMappingCache[cardNumber])
+        continue
+    }
+
+    const points = getPoints(card.content, cardNumber)
+    addCardCopies(cardNumber, points);
+}
+let endTime = performance.now()
+
+console.log(processedCards)
+let timeTaken = (endTime - startTime);
+console.log(timeTaken)
+console.log('get name', timeForGettingNumber)
+console.log('get points', timeForGettingPoints)
+console.log('add cards', timeForAddingCards)
+console.log('shifting', timeForShifting)
+
+
+function addCardCopies(cardNumber, points) {
+    let start = performance.now()
+    cardsMappingCache[cardNumber] = []
     for (let i = cardNumber + 1; i <= cardNumber + points; i++) {
         //console.log(`adding copy of card ${i}`)
-        if (i < cardsCopy.length) {
-            let cardCopy = cardsCopy[i - 1];
-            cards.push(cardCopy)
-        }
+        cards.push(cardsCopy[i - 1])
+        cardsMappingCache[cardNumber].push(cardsCopy[i - 1])
     }
-    processedCards.push(card)
+    let end = performance.now()
+    timeForAddingCards += (end - start)
 }
 
-console.log(processedCards.length)
 
-
-function getPoints(card) {
-    const cardNumber = getCardNumber(card)
-    if (cache[cardNumber] !== undefined) {
-        return cache[cardNumber]
+function getPoints(card, cardNumber) {
+    let start = performance.now()
+    if (pointsCache[cardNumber] !== undefined) {
+        return pointsCache[cardNumber]
     }
     let cards = card.split(':')[1].split('|')
     let winningNumbers = cards[0].trim().split(' ')
     let actualNumbers = cards[1].trim().replaceAll('  ', ' ').split(' ')
-    let actualWinningNumbers = []
     let result = 0;
     for (const actualNumber of actualNumbers) {
         if (winningNumbers.includes(actualNumber)) {
-            actualWinningNumbers.push(actualNumber)
             result++
         }
     }
     //console.log(card)
     //console.log('winning numbers', actualWinningNumbers)
     //console.log('points', result)
-    cache[cardNumber] = result;
+    pointsCache[cardNumber] = result;
+    let end = performance.now()
+    timeForGettingPoints += (end - start)
     return result;
 }
 
 function getCardNumber(card) {
-    return parseInt(card.split(':')[0].trim().replace('   ', ' ').replace('  ', ' ').split(' ')[1])
+    let start = performance.now()
+    let title = card.split(':')[0];
+    let end = performance.now()
+    timeForGettingNumber += (end - start)
+    return parseInt(title.substring(4).trim())
 }
 
 function getTestInput() {
