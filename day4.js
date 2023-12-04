@@ -1,18 +1,34 @@
 const input = getRealInput();
 
-const lines = input.split('\n')
+const cache = {}
+const cards = input.split('\n').slice(0, 80)
+const cardsCopy = JSON.parse(JSON.stringify(cards))
+const processedCards = []
 
-let result = 0;
-
-for (const line of lines) {
-    result += getPoints(line)
+while (cards.length > 0) {
+    const card = cards.shift()
+    const cardNumber = getCardNumber(card)
+    //console.log(cardNumber)
+    const points = getPoints(card)
+    for (let i = cardNumber + 1; i <= cardNumber + points; i++) {
+        //console.log(`adding copy of card ${i}`)
+        if (i < cardsCopy.length) {
+            let cardCopy = cardsCopy[i - 1];
+            cards.push(cardCopy)
+        }
+    }
+    processedCards.push(card)
 }
 
-console.log(result)
+console.log(processedCards.length)
 
 
-function getPoints(line) {
-    let cards = line.split(':')[1].split('|')
+function getPoints(card) {
+    const cardNumber = getCardNumber(card)
+    if (cache[cardNumber] !== undefined) {
+        return cache[cardNumber]
+    }
+    let cards = card.split(':')[1].split('|')
     let winningNumbers = cards[0].trim().split(' ')
     let actualNumbers = cards[1].trim().replaceAll('  ', ' ').split(' ')
     let actualWinningNumbers = []
@@ -20,17 +36,18 @@ function getPoints(line) {
     for (const actualNumber of actualNumbers) {
         if (winningNumbers.includes(actualNumber)) {
             actualWinningNumbers.push(actualNumber)
-            if (result === 0) {
-                result++
-            } else {
-                result *= 2;
-            }
+            result++
         }
     }
-    console.log(line)
-    console.log(actualWinningNumbers)
-    console.log(result)
+    //console.log(card)
+    //console.log('winning numbers', actualWinningNumbers)
+    //console.log('points', result)
+    cache[cardNumber] = result;
     return result;
+}
+
+function getCardNumber(card) {
+    return parseInt(card.split(':')[0].trim().replace('   ', ' ').replace('  ', ' ').split(' ')[1])
 }
 
 function getTestInput() {
