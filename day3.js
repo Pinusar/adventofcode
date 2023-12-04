@@ -93,15 +93,59 @@ for (const num of numbers) {
 
 }
 
+const asterisks = []
+for (let i = 0; i < lines.length; i++) {
+    let line = lines[i]
+
+    for (let j = 0; j < line.length; j++) {
+        if (line[j] === '*') {
+            asterisks.push({row: i, position: j})
+        }
+    }
+
+}
+
 let result = 0;
 for (const partNumber of partNumbers) {
     result += parseInt(partNumber.value);
 }
 
-console.log(numbers.length)
-console.log(partNumbers.length)
-console.log(numbers.length - partNumbers.length)
-console.log(result)
+let gearRatioSum = 0;
+
+for (const asterisk of asterisks) {
+    const row = asterisk.row;
+    const candidateRows = [row - 1, row, row + 1]
+    const candidateNumbers = partNumbers.filter(num => candidateRows.includes(num.start.row))
+    const asteriskPoints = []
+    for (let i = asterisk.row - 1; i <= asterisk.row + 1; i++) {
+        for (let j = asterisk.position - 1; j <= asterisk.position + 1; j++) {
+            if (i >= 0 && i < lines.length && j > 0 && j < lines[0].length)
+            asteriskPoints.push({row: i, position: j})
+        }
+    }
+    let touching = []
+    for (const candidateNumber of candidateNumbers) {
+        for (const asteriskPoint of asteriskPoints) {
+            if (touches(candidateNumber, asteriskPoint)) {
+                touching.push(candidateNumber)
+                break
+            }
+        }
+    }
+    if (touching.length === 2) {
+        let gearRatio = parseInt(touching[0].value) * parseInt(touching[1].value)
+        gearRatioSum += gearRatio;
+    }
+}
+
+console.log(gearRatioSum)
+
+function touches(candidateNumber, asteriskPoint) {
+    if (candidateNumber.start.row !== asteriskPoint.row) {
+        return false;
+    }
+    return asteriskPoint.position >= candidateNumber.start.position && asteriskPoint.position <= candidateNumber.end.position
+}
 
 
 function isASymbol(char) {
