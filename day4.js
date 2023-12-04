@@ -1,10 +1,5 @@
 const input = getRealInput();
 
-let timeForGettingNumber = 0;
-let timeForGettingPoints = 0;
-let timeForAddingCards = 0;
-let timeForShifting = 0;
-
 const pointsCache = {}
 const cardsMappingCache = {}
 const cards = input.split('\n')
@@ -17,16 +12,9 @@ const cards = input.split('\n')
 const cardsCopy = JSON.parse(JSON.stringify(cards))
 let processedCards = 0
 
-let startTime = performance.now()
 
 while (cards.length > 0) {
-    let shiftStart = performance.now()
     const card = cards.pop()
-    let shiftEnd = performance.now()
-    timeForShifting += (shiftEnd - shiftStart)
-
-
-
     const cardNumber = card.number
     processedCards++
     if (cardsMappingCache[cardNumber] !== undefined) {
@@ -37,32 +25,20 @@ while (cards.length > 0) {
     const points = getPoints(card.content, cardNumber)
     addCardCopies(cardNumber, points);
 }
-let endTime = performance.now()
 
 console.log(processedCards)
-let timeTaken = (endTime - startTime);
-console.log(timeTaken)
-console.log('get name', timeForGettingNumber)
-console.log('get points', timeForGettingPoints)
-console.log('add cards', timeForAddingCards)
-console.log('shifting', timeForShifting)
 
 
 function addCardCopies(cardNumber, points) {
-    let start = performance.now()
     cardsMappingCache[cardNumber] = []
     for (let i = cardNumber + 1; i <= cardNumber + points; i++) {
-        //console.log(`adding copy of card ${i}`)
         cards.push(cardsCopy[i - 1])
         cardsMappingCache[cardNumber].push(cardsCopy[i - 1])
     }
-    let end = performance.now()
-    timeForAddingCards += (end - start)
 }
 
 
 function getPoints(card, cardNumber) {
-    let start = performance.now()
     if (pointsCache[cardNumber] !== undefined) {
         return pointsCache[cardNumber]
     }
@@ -75,20 +51,12 @@ function getPoints(card, cardNumber) {
             result++
         }
     }
-    //console.log(card)
-    //console.log('winning numbers', actualWinningNumbers)
-    //console.log('points', result)
     pointsCache[cardNumber] = result;
-    let end = performance.now()
-    timeForGettingPoints += (end - start)
     return result;
 }
 
 function getCardNumber(card) {
-    let start = performance.now()
     let title = card.split(':')[0];
-    let end = performance.now()
-    timeForGettingNumber += (end - start)
     return parseInt(title.substring(4).trim())
 }
 
