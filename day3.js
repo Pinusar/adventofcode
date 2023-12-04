@@ -1,12 +1,5 @@
 const input = getRealInput();
 
-let symbols = []
-for (let i = 0; i < input.length; i++) {
-    if (!symbols.includes(input[i])) {
-        symbols.push(input[i]);
-    }
-}
-
 const numbers = []
 
 const lines = input.split('\n')
@@ -18,7 +11,6 @@ for (let i = 0; i < lines.length; i++) {
     let currentEnd = null;
 
     for (let j = 0; j < line.length; j++) {
-
         if (line[j] >= '0' && line[j] <= '9') {
             if (currentStart === null) {
                 currentStart = {row: i, position: j}
@@ -37,6 +29,17 @@ for (let i = 0; i < lines.length; i++) {
                 currentEnd = null
             }
         }
+    }
+    if (current) {
+        currentEnd = {row: i, position: lines[0].length-1}
+        numbers.push({
+            value: current,
+            start: currentStart,
+            end: currentEnd
+        })
+        current = ''
+        currentStart = null
+        currentEnd = null
     }
 }
 
@@ -97,6 +100,7 @@ for (const partNumber of partNumbers) {
 
 console.log(numbers.length)
 console.log(partNumbers.length)
+console.log(numbers.length - partNumbers.length)
 console.log(result)
 
 
@@ -109,6 +113,9 @@ function getInput() {
 ...*......
 ..35..633.
 ......#...
+..........
+.......600
+..........
 617*......
 .....+.58.
 ..592.....
