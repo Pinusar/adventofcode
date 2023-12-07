@@ -2,51 +2,54 @@ const input = getRealInput();
 
 const lines = input.split('\n')
 lines.sort((a, b) => {
-        return compareHands(a.split(' ')[0], b.split(' ')[0])
+    let firstHand = a.split(' ')[0];
+    let secondHand = b.split(' ')[0];
+    return compareHands(firstHand, secondHand)
     }
 )
 
 let result = 0;
-
 for (let i = 0; i < lines.length; i++){
     const line = lines[i];
     const parts = line.split(' ')
-    const hand = parts[0]
     const bid = parts[1]
-    const score = calculateHandValue(hand)
     result += (i + 1) * bid
 }
 
 console.log('total', result)
 
 function compareHands(first, second) {
-    const order = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
     const firstResult = calculateHandValue(first)
     const secondResult = calculateHandValue(second)
     if (firstResult === secondResult) {
-        for (let i = 0; i < first.length; i++) {
-            const firstCard = first[i]
-            const secondCard = second[i]
-            if (order.indexOf(firstCard) > order.indexOf(secondCard)) {
-                return  1
-            } else if (order.indexOf(secondCard) > order.indexOf(firstCard)) {
-                return -1
-            }
+        return tieBreaker(first, second);
+    }
+    return firstResult - secondResult;
+}
+
+function tieBreaker(first, second) {
+    const cardStrength = ['J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A']
+    for (let i = 0; i < first.length; i++) {
+        const firstCard = first[i]
+        const secondCard = second[i]
+        if (cardStrength.indexOf(firstCard) > cardStrength.indexOf(secondCard)) {
+            return 1
+        } else if (cardStrength.indexOf(secondCard) > cardStrength.indexOf(firstCard)) {
+            return -1
         }
-        return 0;
     }
-    else if (firstResult > secondResult) {
-        return 1
-    } else {
-        return -1
-    }
+    return 0;
 }
 
 function calculateHandValue(hand) {
+    let result;
     const cardCounts = {}
+    const jokers = []
     for (let i = 0; i < hand.length; i++) {
         const card = hand[i]
-        if (cardCounts[card] === undefined) {
+        if (card === 'J') {
+            jokers.push(card)
+        } else if (cardCounts[card] === undefined) {
             cardCounts[card] = 1
         } else {
             cardCounts[card]++
@@ -54,19 +57,36 @@ function calculateHandValue(hand) {
     }
 
     const cards = Object.keys(cardCounts)
-    const combinations = []
+    const scores = []
     for (const card of cards) {
         if (cardCounts[card] === 5) {
-            combinations.push(9)
+            scores.push(9)
         } else if (cardCounts[card] === 4) {
-            combinations.push(8)
+            scores.push(8)
         } else if (cardCounts[card] === 3) {
-            combinations.push(5)
+            scores.push(5)
         } else if (cardCounts[card] === 2) {
-            combinations.push(2)
+            scores.push(2)
         }
     }
-    return combinations.reduce((a, b) => a + b, 0)
+    result = scores.reduce((a, b) => a + b, 0)
+    if (result === 0) {
+        result = 1
+    }
+    let jokerMappings = {
+        9: 9,
+        8: 9,
+        5: 8,
+        4: 7,
+        2: 5,
+        1: 2
+    }
+
+    for (let i = 0; i < jokers.length; i++) {
+        result = jokerMappings[result]
+    }
+
+    return result
 }
 
 function getTestInput() {
