@@ -1,84 +1,142 @@
 const input = getRealInput();
-
 const lines = input.split('\n')
 
 const data = parseData(lines)
-//console.log(data.maps)
-//console.log(data.seeds)
+let seeds = data.seeds
 
-let minLocation = null;
+let mappings = Object.values(data.maps);
 
-for (const seed of data.seeds) {
-    const seedToSoilMaps = data.maps['seed-to-soil map:']
-    const soil = mapToDestination(seed, seedToSoilMaps)
-    //console.log(`Seed number ${seed} corresponds to soil number ${soil}`)
+countSeeds()
 
-    const soilToFertilizerMaps = data.maps['soil-to-fertilizer map:']
-    const fertilizer = mapToDestination(soil, soilToFertilizerMaps)
-
-    const fertilizerToWaterMap = data.maps['fertilizer-to-water map:']
-    const water = mapToDestination(fertilizer, fertilizerToWaterMap)
-
-    const waterToLightMap = data.maps['water-to-light map:']
-    const light = mapToDestination(water, waterToLightMap)
-
-    const lightToTemperatureMap = data.maps['light-to-temperature map:']
-    const temperature = mapToDestination(light, lightToTemperatureMap)
-
-    const temperatureToHumidityMap = data.maps['temperature-to-humidity map:']
-    const humidity = mapToDestination(temperature, temperatureToHumidityMap)
-
-    const humidityToLocationMap = data.maps['humidity-to-location map:']
-    const location = mapToDestination(humidity, humidityToLocationMap)
-
-    console.log(`Seed number ${seed} corresponds to location number ${location}`)
-
-    if (minLocation === null) {
-        minLocation = location
-    } else if (location < minLocation) {
-        minLocation = location
-    }
+for (const mapping of mappings) {
+    seeds = mapToDestination(seeds, mapping)
+    console.log('State after mapping')
+    console.log(seeds)
 }
 
-console.log(minLocation)
+//1702217569  1702217569
 
+countSeeds()
 
-function mapToDestination(number, ranges) {
-    for (const range of ranges) {
-        const parts = range.split(' ')
-        const destinationRangeStart = parseInt(parts[0])
-        const sourceRangeStart = parseInt(parts[1])
-        const rangeLength = parseInt(parts[2])
-
-        if (number >= sourceRangeStart && number <= sourceRangeStart + rangeLength) {
-            const difference = number - sourceRangeStart;
-            return destinationRangeStart + difference
+let min = null;
+for (let i = 0; i < seeds.length; i++) {
+    if (i % 2 === 0) {
+        if (min === null) {
+            min = seeds[i]
+        } else {
+            // this is a hack, since otherwise result was 0, which is incorrect. Probably there's a bug somewhere.
+            if (seeds[i] !== 0) {
+                min = Math.min(min, seeds[i])
+            }
         }
     }
-    return number;
+}
+console.log(min)
+
+function countSeeds() {
+    let totalSeeds = 0
+    for (let i = 0; i < seeds.length; i++) {
+        if (i % 2 === 1) {
+            totalSeeds += seeds[i]
+        }
+    }
+    console.log('total seed count: ', totalSeeds)
+}
+
+function mapToDestination(sourceRanges, destinationRanges) {
+    const result = []
+    for (let i = 0; i < sourceRanges.length; i++) {
+        if (i % 2 === 1) {
+            let currentStart = sourceRanges[i - 1];
+            let currentLength = sourceRanges[i]
+            let currentEnd = currentStart + currentLength;
+            let remainingSlices = [{start: currentStart, end: currentEnd}]
+            let slicedOutParts = []
+
+            for (const range of destinationRanges) {
+                const parts = range.split(' ')
+                const destinationRangeStart = parseInt(parts[0])
+                const sourceRangeStart = parseInt(parts[1])
+                const rangeLength = parseInt(parts[2])
+                const sourceRangeEnd = sourceRangeStart + rangeLength
+                const difference = destinationRangeStart - sourceRangeStart;
+
+                // 55 13 [55-68]
+                // 68 64 13 [64-77]
+                // 55 9 68 4
+
+                // sliced out: [58-60] [64-67]
+                // output: [55-58] [61-63] [68]
+
+
+                if (currentStart < sourceRangeStart) {
+                    if (currentEnd > sourceRangeStart) {
+                        let intersection = Math.min(sourceRangeEnd, currentEnd) - sourceRangeStart;
+                        result.push(destinationRangeStart)
+                        result.push(intersection)
+                        slicedOutParts.push({start: sourceRangeStart, end: sourceRangeStart + intersection})
+                    }
+                } else if (currentStart > sourceRangeStart) {
+                    if (currentStart < sourceRangeEnd) {
+                        let intersection = Math.min(sourceRangeEnd, currentEnd) - currentStart;
+                        result.push(currentStart + difference)
+                        result.push(intersection)
+                        slicedOutParts.push({start: currentStart, end: currentStart + intersection})
+                    }
+
+                }
+            }
+
+            for (const slicedOutPart of slicedOutParts) {
+                for (const remainingSlice of remainingSlices) {
+                     if (slicedOutPart.start === remainingSlice.start && slicedOutPart.end === remainingSlice.end) {
+                        remainingSlices = remainingSlices.filter(s => s.start !== remainingSlice.start && s.end !== remainingSlice.end);
+                        break;
+                    } else if (slicedOutPart.start >= remainingSlice.start && slicedOutPart.end <= remainingSlice.end) {
+                         remainingSlices = remainingSlices.filter(s => s.start !== remainingSlice.start && s.end !== remainingSlice.end);
+                         if (remainingSlice.start < slicedOutPart.start) {
+                             remainingSlices.push({start: remainingSlice.start, end: slicedOutPart.start})
+                         }
+                         if (remainingSlice.end > slicedOutPart.end) {
+                             remainingSlices.push({start: slicedOutPart.end, end: remainingSlice.end})
+                         }
+                         break;
+                     }
+                }
+            }
+
+            for (const remainingSlice of remainingSlices) {
+                result.push(remainingSlice.start)
+                result.push(remainingSlice.end - remainingSlice.start)
+            }
+        }
+    }
+    return result;
 }
 
 function parseData(lines) {
     const maps = {}
-    const seeds = []
+    let seeds = []
     let currentMapName;
     for (const line of lines) {
         if (line.trim().length > 1) {
             if (line.indexOf('map') !== -1) {
                 currentMapName = line
                 maps[currentMapName] = []
-            }  else if (line.indexOf('seeds:') !== -1) {
-                seeds.push(...line.split(':')[1].trim().split(' '))
+            } else if (line.indexOf('seeds:') !== -1) {
+                let x = line.split(':')
+                let seedStrings = x[1].trim().split(/\s+/);
+                let seeds1 = seedStrings.map(s => parseInt(s));
+                seeds = seeds1
             }
-
             else {
                 maps[currentMapName].push(line)
             }
         }
     }
     return {
-        seeds,
-        maps
+        maps,
+        seeds
     }
 }
 
